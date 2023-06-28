@@ -14,7 +14,10 @@ module.exports.createUser = (req, res) => {
       avatar,
     }))
     .then((user) => res.status(201).send(user))
-    .catch(() => {
+    .catch((err) => {
+      if (err.code === 11000) {
+        res.status(409).send({ message: 'При регистрации указан email, который уже существует на сервере' });
+      }
       res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });

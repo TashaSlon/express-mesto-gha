@@ -20,8 +20,11 @@ module.exports = (req, res, next) => {
 
   try {
     payload = jwt.verify(token, 'super-strong-secret');
-  } catch (err) {
-    return handleAuthError(res);
+  } catch (e) {
+    const err = new Error('Необходима авторизация');
+    err.statusCode = 401;
+
+    next(err);
   }
 
   req.user = payload;
