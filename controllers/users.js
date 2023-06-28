@@ -65,7 +65,7 @@ module.exports.getUser = (req, res) => {
 };
 
 module.exports.getProfile = (req, res) => {
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
