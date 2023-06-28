@@ -11,7 +11,6 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.status(201).send(card))
     .catch(() => {
       res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -24,9 +23,19 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.find(req.params.cardId)
     .orFail(() => new Error('Not found'))
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card.owner === req.user._id) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((item) => res.send(item))
+          .catch(() => {
+            res.status(400).send({ message: 'Переданы некорректные данные' });
+          });
+      } else {
+        res.status(403).send({ message: 'Невозможно удалить чужую карточку' });
+      }
+    })
     .catch((err) => {
       if (err.message === 'Not found') {
         res
@@ -36,7 +45,6 @@ module.exports.deleteCard = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -60,7 +68,6 @@ module.exports.likeCard = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -82,7 +89,6 @@ module.exports.dislikeCard = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };

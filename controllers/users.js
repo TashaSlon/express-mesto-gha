@@ -24,7 +24,6 @@ module.exports.createUser = (req, res) => {
         res.status(409).send({ message: 'При регистрации указан email, который уже существует на сервере' });
       }
       res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -61,7 +60,6 @@ module.exports.getUser = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -79,7 +77,6 @@ module.exports.getProfile = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -104,7 +101,6 @@ module.exports.updateProfile = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -129,7 +125,6 @@ module.exports.updateAvatar = (req, res) => {
           });
       } else {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
