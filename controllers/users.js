@@ -14,8 +14,10 @@ module.exports.createUser = (req, res) => {
       avatar,
     }))
     .then((user) => res.status(201).send({
-      _id: user._id,
       email: user.email,
+      name,
+      about,
+      avatar,
     }))
     .catch((err) => {
       if (err.code === 11000) {

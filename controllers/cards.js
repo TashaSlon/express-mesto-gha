@@ -1,7 +1,6 @@
 const Card = require('../models/card');
 
 module.exports.createCard = (req, res) => {
-  console.log(req);
   const { name, link } = req.body;
 
   Card.create(
