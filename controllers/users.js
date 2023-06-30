@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const NotCorrectError = require('../errors/not-auth-err');
+const ExistError = require('../errors/exist-err');
+const NotAuthError = require('../errors/not-auth-err');
+const NotFoundError = require('../errors/not-found-err');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
 
   bcrypt.hash(req.body.password, 10)
@@ -20,14 +24,17 @@ module.exports.createUser = (req, res) => {
       avatar,
     }))
     .catch((err) => {
-      if (err.code === 11000) {
-        res.status(409).send({ message: 'При регистрации указан email, который уже существует на сервере' });
+      if (err.name === 'ValidationError') {
+        throw new NotCorrectError('Переданы некорректные данные при создании карточки');
       }
-      res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      if (err.code === 11000) {
+        throw new ExistError('При регистрации указан email, который уже существует на сервере');
+      }
+      next(err);
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -37,51 +44,47 @@ module.exports.login = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      next(err);
     });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => next(err));
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Такого пользователя не существует',
-          });
-      } else {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError') {
+        throw new NotCorrectError('Переданы некорректные данные при создании карточки');
       }
+      if (err.message === 'Not found') {
+        throw new NotFoundError('Карточка с указанным _id не найдена');
+      }
+      next(err);
     });
 };
 
-module.exports.getProfile = (req, res) => {
+module.exports.getProfile = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Такого пользователя не существует',
-          });
-      } else {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError') {
+        throw new NotCorrectError('Переданы некорректные данные');
       }
+      if (err.message === 'Not found') {
+        throw new NotFoundError('Пользователь не найден');
+      }
+      next(err);
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     req.body,
@@ -93,19 +96,17 @@ module.exports.updateProfile = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Такого пользователя не существует',
-          });
-      } else {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      if (err.name === 'ValidationError') {
+        throw new NotCorrectError('Переданы некорректные данные при обновлении профиля');
       }
+      if (err.message === 'Not found') {
+        throw new NotFoundError('Такого пользователя не существует');
+      }
+      next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     req.body,
@@ -117,14 +118,12 @@ module.exports.updateAvatar = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({
-            message: 'Такого пользователя не существует',
-          });
-      } else {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      if (err.name === 'ValidationError') {
+        throw new NotCorrectError('Переданы некорректные данные при обновлении аватара');
       }
+      if (err.message === 'Not found') {
+        throw new NotFoundError('Такого пользователя не существует');
+      }
+      next(err);
     });
 };
