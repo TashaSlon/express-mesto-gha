@@ -4,7 +4,7 @@ const NotAuthError = require('../errors/not-auth-err');
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const { authorization } = req.cookies.jwt;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new NotAuthError('Необходима авторизация');
@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'super-strong-secret');
   } catch (e) {
-    throw new NotAuthError('Необходима авторизация');
+    next(e);
   }
 
   req.user = payload;

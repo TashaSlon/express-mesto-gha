@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const NotCorrectError = require('../errors/not-auth-err');
 const ExistError = require('../errors/exist-err');
-const NotAuthError = require('../errors/not-auth-err');
 const NotFoundError = require('../errors/not-found-err');
 
 module.exports.createUser = (req, res, next) => {
