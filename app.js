@@ -75,6 +75,9 @@ app.use((err, req, res, next) => {
   if (err.name === 'Not found') {
     error = new NotFoundError('Данные не найдены');
   } else
+  if (err.message === 'Not found') {
+    error = new NotFoundError('Данные не найдены');
+  } else
   if (err.name === 'JsonWebTokenError') {
     error = new NotAuthError('Необходима авторизация');
   } else {
