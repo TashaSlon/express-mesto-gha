@@ -13,11 +13,7 @@ module.exports.createCard = (req, res, next) => {
   )
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new NotCorrectError('Переданы некорректные данные при создании карточки');
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -63,11 +59,7 @@ module.exports.likeCard = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -80,10 +72,6 @@ module.exports.dislikeCard = (req, res, next) => {
     .orFail(() => new Error('Not found'))
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };

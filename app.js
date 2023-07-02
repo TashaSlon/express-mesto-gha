@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const process = require('process');
 const { celebrate, Joi, errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const {
   createUser, login,
 } = require('./controllers/users');
@@ -10,6 +11,10 @@ const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
+const NotAuthError = require('./errors/not-auth-err');
+const AbstractError = require('./errors/abstract-err');
+const NotCorrectError = require('./errors/not-correct-err');
+const ExistError = require('./errors/exist-err');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,6 +25,7 @@ app.use(express.json());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -44,17 +50,25 @@ app.use('/*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 
-app.use(errors());
-app.use((err, req, res) => {
-  const { statusCode = 500, message } = err;
+app.use((err, req, res, next) => {
+  let error;
 
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
+  if (err.code === 11000) {
+    error = new ExistError('При регистрации указан email, который уже существует на сервере');
+  }
+  if (err.name === 'ValidationError') {
+    error = new NotCorrectError('Переданы некорректные данные');
+  }
+  if (err.message === 'Not found') {
+    error = new NotFoundError('Данные не найдены');
+  }
+  if (err.name === 'JsonWebTokenError') {
+    error = new NotAuthError('Необходима авторизация');
+  } else {
+    error = new AbstractError('На сервере произошла ошибка');
+  }
+  res.status(error.statusCode).send({ message: error.message });
+  next();
 });
 
 app.listen(PORT);
