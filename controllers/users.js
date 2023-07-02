@@ -2,6 +2,9 @@ const jwtoken = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const NotAllowError = require('../errors/not-allow-err');
+const ExistError = require('../errors/exist-err');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
@@ -21,7 +24,14 @@ module.exports.createUser = (req, res, next) => {
       avatar,
     }))
     .catch((err) => {
-      next(err);
+      if (err.code === 11000) {
+        next(new ExistError('При регистрации указан email, который уже существует на сервере'));
+      } else
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании карточки'));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -60,7 +70,7 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       next(err);
@@ -85,10 +95,14 @@ module.exports.updateProfile = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((user) => res.send(user))
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании карточки'));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -101,9 +115,13 @@ module.exports.updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((user) => res.send(user))
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании карточки'));
+      } else {
+        next(err);
+      }
     });
 };
