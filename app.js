@@ -44,7 +44,6 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(errors());
 app.use(auth);
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
@@ -54,8 +53,8 @@ app.use('/*', (req, res, next) => {
   next(err);
 });
 
+app.use(errors());
 app.use((err, req, res, next) => {
-  console.log(err.name);
   let error;
 
   if (err.name === 'NotAllow') {
@@ -68,7 +67,7 @@ app.use((err, req, res, next) => {
     error = new NotCorrectError('Переданы некорректные данные');
   } else
   if (err.name === 'TypeError') {
-    error = new NotCorrectError('Переданы некорректные данные');
+    error = new NotFoundError('Данные не найдены');
   } else
   if (err.message === 'Validation failed') {
     error = new NotCorrectError('Переданы некорректные данные');
