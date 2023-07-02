@@ -1,7 +1,5 @@
 const Card = require('../models/card');
-const NotCorrectError = require('../errors/not-auth-err');
 const NotAllowError = require('../errors/not-allow-err');
-const NotFoundError = require('../errors/not-found-err');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -32,19 +30,16 @@ module.exports.deleteCard = (req, res, next) => {
       if (card.owner === req.user._id) {
         Card.findByIdAndRemove(req.params.cardId)
           .then((item) => res.send(item))
-          .catch(() => {
-            throw new NotCorrectError('Переданы некорректные данные');
+          .catch((err) => {
+            next(err);
           });
       } else {
-        throw new NotAllowError('Невозможно удалить чужую карточку');
+        const err = new NotAllowError('Невозможно удалить чужую карточку');
+        next(err);
       }
     })
     .catch((err) => {
-      if (err.message === 'Not found') {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
