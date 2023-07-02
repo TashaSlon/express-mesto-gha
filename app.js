@@ -48,7 +48,9 @@ app.use(auth);
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 app.use('/*', (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
+  let err;
+  err.name = 'Not found';
+  next(err);
 });
 
 app.use((err, req, res, next) => {
@@ -60,7 +62,7 @@ app.use((err, req, res, next) => {
   if (err.name === 'ValidationError') {
     error = new NotCorrectError('Переданы некорректные данные');
   } else
-  if (err.message === 'Not found') {
+  if (err.name === 'Not found') {
     error = new NotFoundError('Данные не найдены');
   } else
   if (err.name === 'JsonWebTokenError') {
