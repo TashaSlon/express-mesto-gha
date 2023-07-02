@@ -43,6 +43,7 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.use(errors());
 app.use(auth);
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
