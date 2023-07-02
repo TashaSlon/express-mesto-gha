@@ -48,7 +48,6 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
     .then((card) => {
       res.send(card);
     })
@@ -63,7 +62,6 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
     .then((card) => res.send(card))
     .catch((err) => {
       next(err);
