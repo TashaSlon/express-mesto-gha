@@ -1,4 +1,6 @@
 const Card = require('../models/card');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -10,7 +12,11 @@ module.exports.createCard = (req, res, next) => {
   )
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при создании карточки'));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -24,6 +30,7 @@ module.exports.getCards = (req, res, next) => {
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((card) => {
       if (card.owner === req.user._id) {
         Card.findByIdAndRemove(req.params.cardId)
@@ -48,7 +55,7 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((card) => {
       res.send(card);
     })
@@ -63,7 +70,7 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Пользователь с указанным id не существует'))
     .then((card) => res.send(card))
     .catch((err) => {
       next(err);

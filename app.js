@@ -55,6 +55,7 @@ app.use('/*', (req, res, next) => {
 
 app.use(errors());
 app.use((err, req, res, next) => {
+  console.log(err.name);
   let error;
 
   if (err.name === 'NotAllow') {
@@ -75,8 +76,8 @@ app.use((err, req, res, next) => {
   if (err.name === 'Not found') {
     error = new NotFoundError('Данные не найдены');
   } else
-  if (err.message === 'Not found') {
-    error = new NotFoundError('Данные не найдены');
+  if (err.message === 'Пользователь с указанным id не существует') {
+    error = new NotFoundError('Пользователь с указанным id не существует');
   } else
   if (err.message === 'Неправильные почта или пароль') {
     error = new NotAuthError('Неправильные почта или пароль');
