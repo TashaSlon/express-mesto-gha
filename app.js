@@ -79,7 +79,7 @@ app.use((err, req, res, next) => {
     error = new NotFoundError('Данные не найдены');
   } else
   if (err.message === 'Неправильные почта или пароль') {
-    error = new NotFoundError('Неправильные почта или пароль');
+    error = new NotAuthError('Неправильные почта или пароль');
   } else
   if (err.name === 'JsonWebTokenError') {
     error = new NotAuthError('Необходима авторизация');
