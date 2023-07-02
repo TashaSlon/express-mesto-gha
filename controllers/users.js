@@ -28,7 +28,7 @@ module.exports.createUser = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -37,11 +37,11 @@ module.exports.login = (req, res, next) => {
               _id: user._id,
             }, 'super-strong-secret');
             res.cookie('jwt', jwt, {
-              maxAge: 360000,
+              maxAge: 7 * 24 * 60 * 60 * 1000,
               httpOnly: true,
               sameSite: true,
             });
-            res.send({ data: user.toJSON() });
+            res.send({ token: jwt });
           } else {
             throw new NotAllowError('Указаны неверные логин или пароль');
           }

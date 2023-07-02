@@ -15,6 +15,7 @@ const NotAuthError = require('./errors/not-auth-err');
 const AbstractError = require('./errors/abstract-err');
 const NotCorrectError = require('./errors/not-correct-err');
 const ExistError = require('./errors/exist-err');
+const NotAllowError = require('./errors/not-allow-err');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -48,7 +49,7 @@ app.use(auth);
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 app.use('/*', (req, res, next) => {
-  let err;
+  const err = {};
   err.name = 'Not found';
   next(err);
 });
@@ -56,6 +57,9 @@ app.use('/*', (req, res, next) => {
 app.use((err, req, res, next) => {
   let error;
 
+  if (err.name === 'NotAllow') {
+    error = new NotAllowError('Невозможно удалить чужую карточку');
+  } else
   if (err.code === 11000) {
     error = new ExistError('При регистрации указан email, который уже существует на сервере');
   } else
