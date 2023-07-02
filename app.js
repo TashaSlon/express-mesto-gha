@@ -56,13 +56,13 @@ app.use((err, req, res, next) => {
 
   if (err.code === 11000) {
     error = new ExistError('При регистрации указан email, который уже существует на сервере');
-  }
+  } else
   if (err.name === 'ValidationError') {
     error = new NotCorrectError('Переданы некорректные данные');
-  }
+  } else
   if (err.message === 'Not found') {
     error = new NotFoundError('Данные не найдены');
-  }
+  } else
   if (err.name === 'JsonWebTokenError') {
     error = new NotAuthError('Необходима авторизация');
   } else {
