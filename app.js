@@ -55,6 +55,7 @@ app.use('/*', (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err.name);
   let error;
 
   if (err.name === 'NotAllow') {
@@ -64,6 +65,12 @@ app.use((err, req, res, next) => {
     error = new ExistError('При регистрации указан email, который уже существует на сервере');
   } else
   if (err.name === 'ValidationError') {
+    error = new NotCorrectError('Переданы некорректные данные');
+  } else
+  if (err.name === 'TypeError') {
+    error = new NotCorrectError('Переданы некорректные данные');
+  } else
+  if (err.message === 'Validation failed') {
     error = new NotCorrectError('Переданы некорректные данные');
   } else
   if (err.name === 'Not found') {

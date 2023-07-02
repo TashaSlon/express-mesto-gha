@@ -25,10 +25,12 @@ module.exports.getCards = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
+      console.log(card);
       if (card.owner === req.user._id) {
         Card.findByIdAndRemove(req.params.cardId)
           .then((item) => res.send(item))
           .catch((err) => {
+            console.log(err);
             next(err);
           });
       } else {
@@ -38,6 +40,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
+      console.log('hhhhg7  gg');
       next(err);
     });
 };
