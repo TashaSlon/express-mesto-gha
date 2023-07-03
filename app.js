@@ -46,9 +46,7 @@ app.use(auth);
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 app.use('/*', (req, res, next) => {
-  const err = {};
-  err.name = 'Not found';
-  next(err);
+  next(new NotFoundError('Данной страницы не существует'));
 });
 
 app.use(errors());
