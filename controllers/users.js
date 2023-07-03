@@ -16,23 +16,26 @@ module.exports.createUser = (req, res, next) => {
       name,
       about,
       avatar,
-    }))
-    .then((user) => res.status(201).send({
-      email: user.email,
-      name,
-      about,
-      avatar,
-    }))
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new ExistError('При регистрации указан email, который уже существует на сервере'));
-      } else
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Некорректные данные при создании карточки'));
-      } else {
+    })
+      .then((user) => res.status(201).send({
+        email: user.email,
+        name,
+        about,
+        avatar,
+      }))
+      .catch((err) => {
+        if (err.code === 11000) {
+          next(new ExistError('При регистрации указан email, который уже существует на сервере'));
+        } else
+        if (err.name === 'ValidationError') {
+          next(new BadRequestError('Некорректные данные при создании карточки'));
+        } else {
+          next(err);
+        }
+      })
+      .catch((err) => {
         next(err);
-      }
-    });
+      }));
 };
 
 module.exports.login = (req, res, next) => {
