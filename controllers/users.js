@@ -32,10 +32,10 @@ module.exports.createUser = (req, res, next) => {
         } else {
           next(err);
         }
-      })
-      .catch((err) => {
-        next(err);
-      }));
+      }))
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.login = (req, res, next) => {
