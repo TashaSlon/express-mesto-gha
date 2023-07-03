@@ -11,9 +11,6 @@ const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
-const NotAuthError = require('./errors/not-auth-err');
-const NotCorrectError = require('./errors/not-correct-err');
-const NotAllowError = require('./errors/not-allow-err');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -51,26 +48,7 @@ app.use('/*', (req, res, next) => {
 
 app.use(errors());
 app.use((err, req, res, next) => {
-  let error;
-
-  if (err.name === 'NotAllow') {
-    error = new NotAllowError('Невозможно удалить чужую карточку');
-  } else
-  if (err.name === 'ValidationError') {
-    error = new NotCorrectError('Переданы некорректные данные');
-  } else
-  if (err.name === 'TypeError') {
-    error = new NotFoundError('Данные не найдены');
-  } else
-  if (err.name === 'Not found') {
-    error = new NotFoundError('Данные не найдены');
-  } else
-  if (err.name === 'JsonWebTokenError') {
-    error = new NotAuthError('Необходима авторизация');
-  } else {
-    error = err;
-  }
-  const { statusCode = 500, message } = error;
+  const { statusCode = 500, message } = err;
 
   res
     .status(statusCode)
@@ -79,7 +57,7 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
-  res.status(error.statusCode).send({ message: error.message });
+
   next();
 });
 

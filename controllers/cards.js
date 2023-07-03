@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
+const NotAllowError = require('../errors/not-allow-err');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
@@ -39,9 +40,7 @@ module.exports.deleteCard = (req, res, next) => {
             next(err);
           });
       } else {
-        const err = {};
-        err.name = 'NotAllow';
-        next(err);
+        next(new NotAllowError('Невозможно удалить чужую карточку'));
       }
     })
     .catch((err) => {
