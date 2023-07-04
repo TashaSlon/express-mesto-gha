@@ -10,6 +10,7 @@ const {
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/not-found-err');
 
 const { PORT = 3000 } = process.env;
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(requestLogger);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().regex(/^[a-z0-9._%+-]+@[a-z0-9-]+.+.[a-z]{2,4}$/i),
@@ -46,6 +48,7 @@ app.use('/*', (req, res, next) => {
   next(new NotFoundError('Данной страницы не существует'));
 });
 
+app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
